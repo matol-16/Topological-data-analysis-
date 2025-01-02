@@ -237,22 +237,18 @@ print("---------Question 3----------")
 
 def task3(points,emu,IsSimplex):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
-    dist={0:0}
     simplex={0:0}
     l=len(points)
-
-    for i in range(1,len(points)+1):
-        dist[emu[i]] = np.linalg.norm(points[emu[i][0]] - points[emu[i][1]])
 
     for i in len(emu):
         for j in len(emu[i-1]):
             if(not IsSimplex(emu[i][j])): 
                 break
             for k in len(points):
-                if(k in emu[i][j]):
+                if(simplex(emu[i][j]).contain(points[k])):
                     simplex(emu[i][j+k])=simplex(emu[i-1][j])
                 else:
-                    simplex(emu[i][j+k])=minimal_enclosing_sphere(points[emu[i][j]+k])
+                    simplex(emu[i][j+k])=minimal_enclosing_sphere(points[emu[i-1][j]].append(points[k]))
 
     print(simplex)
 
