@@ -1,6 +1,9 @@
 import random
 import numpy as np
 
+
+## QUESTION 1:
+
 class Sphere:
     def __init__(self, center, radius):
         self.center = np.array(center)
@@ -142,4 +145,14 @@ def test_minimal_enclosing_sphere():
 
     print("All test cases passed!")
 
+print("---------Question 1----------")
 test_minimal_enclosing_sphere()
+
+
+## Question 2:
+
+
+
+
+print("---------Question 1----------")
+
