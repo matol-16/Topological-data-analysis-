@@ -106,8 +106,6 @@ def welzl(P, R):
     P.append(p)
     return result
 
-print("---------Question 1------------")
-
 def minimal_enclosing_sphere(points):
     """Compute the minimal enclosing sphere for a set of points."""
     points = points[:]
@@ -149,10 +147,6 @@ def test_task1():
 
     print("All test cases passed!")
 
-
-
-print("---------Question 1------------")
-test_task1()
 
 
 ## Question 2:
@@ -227,12 +221,11 @@ def test_task2():
         print(f"Test({enu})passed!")
 
         enu=[3,2,1,0]
-        assert np.allclose(task2(P,[enu]).radius, 5.09902)   
+        assert np.allclose(task2(P,enu), 5.09902)   
         print(f"Test({enu})passed!")
 
         print("Test 2 all passed! ")
 
-test_task2()
 
 def enum_simplex2(points):
     "énumère et affiche les simplexes avec la valeur de filtrage"
@@ -257,46 +250,62 @@ def enum_simplex2(points):
         print(f"({enum}) -> {filtration}")
 
 
-print("---------Question 2------------")
-test_task2()
-
-print("---------Question 3------------")
 
 from itertools import combinations #On utilise ici une bibliothèque pour le travail combinatoire -> à faire à la main plus tard.
 
+
+        
 
 def enum3(points):
     "crée le tableau énumérant pour chaque taille (lignes) les sous ensembles: il représente un arbre"
     "il doit permettre de savoir si un simplexe de taille inférieure à la taille considérée existe"
     n=len(points)
     enum=[]
+    l1=[ens for ens in range(n)]
 
-    enum[0]=[[ens] for ens in range(n)]
+    enum.append([(ens,) for ens in range(n)])
 
     k=2 #taille du sous ensemble
     while(k<=n):
-        enum[k-1]=[comb for comb in combinations(enum[0], k)]#on va exploiter le format de sortie de la fonction combinaisons
+        enum.append([comb for comb in combinations(l1, k)])#on va exploiter le format de sortie de la fonction combinaisons
+        k=k+1
     return enum
 
   
 def task3(points,l):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
 
-    enum = enum3(points)
-    isSimplex = np.zeros((np.shape(enum)))
+    emu = enum3(points)
+    simplex={(0):0} #indique 
+    #IsSimplex = {0:True} #dictionnaire indiquant si un sous ensemble forme un simplexe
+    IsSimplex= [[0] * len(sublist) for sublist in emu] # le tableau de suivi: 0 si jamais vu, 1 si simplexe, 2 si pas un simplexe
 
-    simplex={0:0}
-    l=len(points)
+    n=len(points)
 
-    for i in len(emu):
-        for j in len(emu[i-1]):
-            if(not IsSimplex(emu[i][j])): 
-                break
-            for k in len(points):
-                if(simplex(emu[i][j]).contain(points[k])):
-                    simplex(emu[i][j+k])=simplex(emu[i-1][j])
+
+    #Vestion 1 Mathias: pas optimale, on évite pas tj de calculer les simplexes qui en contiennent d'autres
+    for i in range(len(emu)):
+        for j in range(len(emu[i])):
+            test = IsSimplex[i][j]
+            if(test==0): #pas encore connu
+                filtration = task2(points,emu[i][j])
+                if (filtration > l): #pas un simplexe
+                    emu[i][j] = 2
+                    if(i<n-1): #on s'assure qu'on est pas à la dernière ligne
+                        for k in range(n-i-1-j):
+                         emu[i+1][j+k]=2 #les sous ensembles de taille supérieure qui contiennent emu[i,j] ne sont pas non plus des simplexes
+                        
                 else:
-                    simplex(emu[i][j+k])=minimal_enclosing_sphere(points[emu[i-1][j]].append(points[k]))
+                    emu[i][j] = 1
+                    simplex[emu[i][j]]=filtration
+            elif(test==1): #est un simplexe -> normalement impossible de revenir sur nos pas !
+                raise RecursionError("l'ago revient sur ses pas !")
+            #Sinon, test ==2 et ce n'est pas un simplexe. on passe au prochain. Pas besoin de tester cette éventualité
+    
+        
+ 
+    return simplex
 
-    print(simplex)
+
+    
 
