@@ -232,10 +232,10 @@ def test_task2():
 
 def enum_simplex(points):
     "énumère et affiche les simplexes avec la valeur de filtrage"
-    parties= []
-    #on fait la liste des sous ensembles de points:
+    parties= [] #on fait la liste des sous ensembles de points:
 
-    i, imax = 0, 2**len(points)-1
+
+    i, imax = 0, 2**len(points)-1 #on construit un itérateur i, dont les bits 1 seront les points sélectionnés dans le sous ensemble
     while i <= imax:
         s = []
         j, jmax = 0, len(points)-1
@@ -252,10 +252,27 @@ def enum_simplex(points):
         filtration = task2(points,enum)
         print(f"({enum}) -> {filtration}")
 
+
 print("---------Question 2------------")
 test_task2()
 
 print("---------Question 3------------")
+
+from itertools import combinations
+
+
+def enum3(points):
+    "crée le tableau énumérant pour chaque taille (lignes) les sous ensembles: il représente un arbre"
+    "il doit permettre de savoir si un simplexe de taille inférieure à la taille considérée existe"
+    n=len(points)
+    enum=[]
+
+    enum[0]=[[ens] for ens in range(n)]
+
+    k=2 #taille du sous ensemble
+    while(k<=n):
+        enum[k-1]=[comb for comb in combinations(enum[0], k)]#on va exploiter le format de sortie de la fonction combinaisons
+    return enum
 
 
 
