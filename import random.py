@@ -161,6 +161,8 @@ test_task1()
 
 def task2(points,emu):
     """Compute the filtration value for the points in emu"""
+    points_chosen = [points[i] for i in emu]
+    filtration = minimal_enclosing_sphere(points_chosen).radius
 
     return filtration
 
@@ -232,7 +234,7 @@ def test_task2():
 
 test_task2()
 
-def enum_simplex(points):
+def enum_simplex2(points):
     "énumère et affiche les simplexes avec la valeur de filtrage"
     parties= [] #on fait la liste des sous ensembles de points:
 
@@ -260,7 +262,7 @@ test_task2()
 
 print("---------Question 3------------")
 
-from itertools import combinations
+from itertools import combinations #On utilise ici une bibliothèque pour le travail combinatoire -> à faire à la main plus tard.
 
 
 def enum3(points):
@@ -275,9 +277,14 @@ def enum3(points):
     while(k<=n):
         enum[k-1]=[comb for comb in combinations(enum[0], k)]#on va exploiter le format de sortie de la fonction combinaisons
     return enum
+
   
-def task3(points,emu,IsSimplex):
+def task3(points,l):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
+
+    enum = enum3(points)
+    isSimplex = np.zeros((np.shape(enum)))
+
     simplex={0:0}
     l=len(points)
 
