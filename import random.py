@@ -149,11 +149,6 @@ def test_task1():
 
 
 
-
-
-
-
-
 print("---------Question 2------------")
 
 
@@ -161,8 +156,8 @@ print("---------Question 2------------")
 ## Question 2:
 def task2(points,emu):
     """Compute the filtration value for the points in emu"""
-    emu = emu[:]
-    filtration = minimal_enclosing_sphere(emu).radius
+    points_chosen = [points[i] for i in emu]
+    filtration = minimal_enclosing_sphere(points_chosen).radius
     return filtration
 
 # Test cases
@@ -170,63 +165,63 @@ def test_task2():
         P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
 
         enu=[0]
-        assert np.allclose(task2(P,[enu]).radius, 0)  
+        assert np.allclose(task2(P,enu), 0)  
         print(f"Test({enu})passed!")
 
         enu=[1]
-        assert np.allclose(task2(P,[enu]).radius, 0)  
+        assert np.allclose(task2(P,enu), 0)  
         print(f"Test({enu})passed!")
 
         enu=[2]
-        assert np.allclose(task2(P,[enu]).radius, 0)  
+        assert np.allclose(task2(P,enu), 0)  
         print(f"Test({enu})passed!")
 
         enu=[3]
-        assert np.allclose(task2(P,[enu]).radius, 0)
+        assert np.allclose(task2(P,enu), 0)
         print(f"Test({enu})passed!")
 
         enu=[2,1]
-        assert np.allclose(task2(P,[enu]).radius, 3.53553)   
+        assert np.allclose(task2(P,enu), 3.53553)   
         print(f"Test({enu})passed!")
 
         enu=[1,0]
-        assert np.allclose(task2(P,[enu]).radius, 3.67425)   
+        assert np.allclose(task2(P,enu), 3.67425)   
         print(f"Test({enu})passed!")
 
         enu=[3,2]
-        assert np.allclose(task2(P,[enu]).radius, 4)   
+        assert np.allclose(task2(P,enu), 4)   
         print(f"Test({enu})passed!")
 
         enu=[2,0]
-        assert np.allclose(task2(P,[enu]).radius, 4.12311)   
+        assert np.allclose(task2(P,enu), 4.12311)   
         print(f"Test({enu})passed!")
 
         enu=[3,0]
-        assert np.allclose(task2(P,[enu]).radius, 4.12311)   
+        assert np.allclose(task2(P,enu), 4.12311)   
         print(f"Test({enu})passed!")
 
         enu=[2,1,0]
-        assert np.allclose(task2(P,[enu]).radius, 4.39525)   
+        assert np.allclose(task2(P,enu), 4.39525)   
         print(f"Test({enu})passed!")
 
         enu=[3,2,0]
-        assert np.allclose(task2(P,[enu]).radius, 4.71495)   
+        assert np.allclose(task2(P,enu), 4.71495)   
         print(f"Test({enu})passed!")
 
         enu=[3,1]
-        assert np.allclose(task2(P,[enu]).radius, 4.94975)   
+        assert np.allclose(task2(P,enu), 4.94975)   
         print(f"Test({enu})passed!")
 
         enu=[3,2,1]
-        assert np.allclose(task2(P,[enu]).radius, 5)   
+        assert np.allclose(task2(P,enu), 5)   
         print(f"Test({enu})passed!")
 
         enu=[3,1,0]
-        assert np.allclose(task2(P,[enu]).radius, 5.04975)   
+        assert np.allclose(task2(P,enu), 5.04975)   
         print(f"Test({enu})passed!")
 
         enu=[3,2,1,0]
-        assert np.allclose(task2(P,[enu]).radius, 5.09902)   
+        assert np.allclose(task2(P,enu), 5.09902)   
         print(f"Test({enu})passed!")
 
         print("Test 2 all passed! ")
@@ -236,8 +231,7 @@ def enum_simplex(points):
     "à compléter"
 
 
-print("---------Question 1----------")
-
+test_task2()
 
 
 
