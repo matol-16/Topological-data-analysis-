@@ -106,6 +106,8 @@ def welzl(P, R):
     P.append(p)
     return result
 
+print("---------Question 1------------")
+
 def minimal_enclosing_sphere(points):
     """Compute the minimal enclosing sphere for a set of points."""
     points = points[:]
@@ -159,8 +161,7 @@ test_task1()
 
 def task2(points,emu):
     """Compute the filtration value for the points in emu"""
-    points_chosen = [points[i] for i in emu]
-    filtration = minimal_enclosing_sphere(points_chosen).radius
+
     return filtration
 
 # Test cases
@@ -224,11 +225,12 @@ def test_task2():
         print(f"Test({enu})passed!")
 
         enu=[3,2,1,0]
-        assert np.allclose(task2(P,enu), 5.09902)   
+        assert np.allclose(task2(P,[enu]).radius, 5.09902)   
         print(f"Test({enu})passed!")
 
         print("Test 2 all passed! ")
 
+test_task2()
 
 def enum_simplex(points):
     "énumère et affiche les simplexes avec la valeur de filtrage"
@@ -273,9 +275,21 @@ def enum3(points):
     while(k<=n):
         enum[k-1]=[comb for comb in combinations(enum[0], k)]#on va exploiter le format de sortie de la fonction combinaisons
     return enum
+  
+def task3(points,emu,IsSimplex):
+    """implement an algorithm that enumerates the simplexes and their filtration values."""
+    simplex={0:0}
+    l=len(points)
 
+    for i in len(emu):
+        for j in len(emu[i-1]):
+            if(not IsSimplex(emu[i][j])): 
+                break
+            for k in len(points):
+                if(simplex(emu[i][j]).contain(points[k])):
+                    simplex(emu[i][j+k])=simplex(emu[i-1][j])
+                else:
+                    simplex(emu[i][j+k])=minimal_enclosing_sphere(points[emu[i-1][j]].append(points[k]))
 
-
-
-
+    print(simplex)
 
