@@ -149,11 +149,14 @@ def test_task1():
 
 
 
-print("---------Question 2------------")
-
+print("---------Question 1------------")
+test_task1()
 
 
 ## Question 2:
+
+#Ici, on déduit que la filtration value de chaque simplexe est le MEB (à vérifier)
+
 def task2(points,emu):
     """Compute the filtration value for the points in emu"""
     points_chosen = [points[i] for i in emu]
@@ -228,11 +231,31 @@ def test_task2():
 
 
 def enum_simplex(points):
-    "à compléter"
+    "énumère et affiche les simplexes avec la valeur de filtrage"
+    parties= []
+    #on fait la liste des sous ensembles de points:
 
+    i, imax = 0, 2**len(points)-1
+    while i <= imax:
+        s = []
+        j, jmax = 0, len(points)-1
+        while j <= jmax:
+            if (i>>j)&1 == 1:
+                s.append(points[j])
+            j += 1
+        parties.append(s)
+        i += 1 
 
+    #on affiche les simplexes avec filtration value
+
+    for enum in parties:
+        filtration = task2(points,enum)
+        print(f"({enum}) -> {filtration}")
+
+print("---------Question 2------------")
 test_task2()
 
+print("---------Question 3------------")
 
 
 
