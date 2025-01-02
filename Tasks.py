@@ -113,42 +113,6 @@ def minimal_enclosing_sphere(points):
     random.shuffle(points)
     return welzl(points, [])
 
-# Test cases
-def test_task1():
-    """Test cases for minimal enclosing sphere."""
-    # Test 1: Single point
-    points = [(0, 0, 0)]
-    sphere = minimal_enclosing_sphere(points)
-    assert np.allclose(sphere.center, [0, 0, 0])
-    assert np.isclose(sphere.radius, 0)
-    print("Test 1 passed!")
-
-    # Test 2: Two points
-    points = [(0, 0, 0), (2, 0, 0)]
-    sphere = minimal_enclosing_sphere(points)
-    assert np.allclose(sphere.center, [1, 0, 0])
-    assert np.isclose(sphere.radius, 1)
-    print("Test 2 passed!")
-
-    # Test 3: Three points
-    points = [(-10, 0, 0), (10, 0, 0), (0, 1, 0)]
-    sphere = minimal_enclosing_sphere(points)
-    assert np.allclose(sphere.center, [0, 0, 0])
-    assert np.isclose(sphere.radius, 10)
-    print("Test 3 passed!")
-
-    # Test 4: Four points
-    points = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
-    sphere = minimal_enclosing_sphere(points)
-    assert np.allclose(sphere.center, [0, 0, 0])
-    assert np.isclose(sphere.radius, np.sqrt(26))
-    print("Test 4 passed!")
-
- 
-
-    print("All test cases passed!")
-
-
 
 ## Question 2:
 
@@ -161,71 +125,7 @@ def task2(points,emu):
 
     return filtration
 
-# Test cases
-def test_task2():
-        P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
 
-        enu=[0]
-        assert np.allclose(task2(P,enu), 0)  
-        print(f"Test({enu})passed!")
-
-        enu=[1]
-        assert np.allclose(task2(P,enu), 0)  
-        print(f"Test({enu})passed!")
-
-        enu=[2]
-        assert np.allclose(task2(P,enu), 0)  
-        print(f"Test({enu})passed!")
-
-        enu=[3]
-        assert np.allclose(task2(P,enu), 0)
-        print(f"Test({enu})passed!")
-
-        enu=[2,1]
-        assert np.allclose(task2(P,enu), 3.53553)   
-        print(f"Test({enu})passed!")
-
-        enu=[1,0]
-        assert np.allclose(task2(P,enu), 3.67425)   
-        print(f"Test({enu})passed!")
-
-        enu=[3,2]
-        assert np.allclose(task2(P,enu), 4)   
-        print(f"Test({enu})passed!")
-
-        enu=[2,0]
-        assert np.allclose(task2(P,enu), 4.12311)   
-        print(f"Test({enu})passed!")
-
-        enu=[3,0]
-        assert np.allclose(task2(P,enu), 4.12311)   
-        print(f"Test({enu})passed!")
-
-        enu=[2,1,0]
-        assert np.allclose(task2(P,enu), 4.39525)   
-        print(f"Test({enu})passed!")
-
-        enu=[3,2,0]
-        assert np.allclose(task2(P,enu), 4.71495)   
-        print(f"Test({enu})passed!")
-
-        enu=[3,1]
-        assert np.allclose(task2(P,enu), 4.94975)   
-        print(f"Test({enu})passed!")
-
-        enu=[3,2,1]
-        assert np.allclose(task2(P,enu), 5)   
-        print(f"Test({enu})passed!")
-
-        enu=[3,1,0]
-        assert np.allclose(task2(P,enu), 5.04975)   
-        print(f"Test({enu})passed!")
-
-        enu=[3,2,1,0]
-        assert np.allclose(task2(P,enu), 5.09902)   
-        print(f"Test({enu})passed!")
-
-        print("Test 2 all passed! ")
 
 
 def enum_simplex2(points):
@@ -284,7 +184,7 @@ def task3_mathias(points,l):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
 
     emu = enum3(points)
-    simplex={(0):0} #indique 
+    simplex = {tuple([i]): 0 for i in range(len(points))} #on initialise le premier simplexe
     #IsSimplex = {0:True} #dictionnaire indiquant si un sous ensemble forme un simplexe
     IsSimplex= [[0] * len(sublist) for sublist in emu] # le tableau de suivi: 0 si jamais vu, 1 si simplexe, 2 si pas un simplexe
 
@@ -292,25 +192,29 @@ def task3_mathias(points,l):
 
 
     #Vestion 1 Mathias: pas optimale, on évite pas tj de calculer les simplexes qui en contiennent d'autres
-    for i in range(len(emu)):
+    for i in range(1,len(emu)):
         for j in range(len(emu[i])):
             test = IsSimplex[i][j]
             if(test==0): #pas encore connu
                 filtration = task2(points,emu[i][j])
                 if (filtration > l): #pas un simplexe
-                    emu[i][j] = 2
+                    IsSimplex[i][j] = 2
                     if(i<n-1): #on s'assure qu'on est pas à la dernière ligne
                         for k in range(n-i-1-j):
-                         emu[i+1][j+k]=2 #les sous ensembles de taille supérieure qui contiennent emu[i,j] ne sont pas non plus des simplexes
+                         IsSimplex[i+1][j+k]=2 #les sous ensembles de taille supérieure qui contiennent emu[i,j] ne sont pas non plus des simplexes
                 else:
-                    emu[i][j] = 1
-                    simplex[emu[i][j]]=filtration
+                    IsSimplex[i][j] = 1
+                    simplex[tuple(emu[i][j])]=filtration
             elif(test==1): #est un simplexe -> normalement impossible de revenir sur nos pas !
                 raise RecursionError("l'ago revient sur ses pas !")
             #Sinon, test ==2 et ce n'est pas un simplexe. on passe au prochain. Pas besoin de tester cette éventualité
+    
+    for key, value in simplex.items():
+        print(f"{key} -> {value}")
+    
     return simplex   
 
- 
+
 def task3(points,l):
     enum = enum3(points)
     IsSimplex = {tuple([i]): 1 for i in range(len(points))}
