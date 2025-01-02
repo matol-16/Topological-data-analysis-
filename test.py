@@ -1,4 +1,4 @@
-import Task as t
+import Tasks as t
 import numpy as np
 
 # Test cases
