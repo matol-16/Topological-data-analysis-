@@ -1,6 +1,9 @@
 import random
 import numpy as np
 
+
+## QUESTION 1:
+
 class Sphere:
     def __init__(self, center, radius):
         self.center = np.array(center)
@@ -140,6 +143,33 @@ def test_minimal_enclosing_sphere():
     assert np.isclose(sphere.radius, np.sqrt(26))
     print("Test 4 passed!")
 
+ 
+
     print("All test cases passed!")
 
+
 test_minimal_enclosing_sphere()
+
+print("---------Question 2------------")
+
+
+
+## Question 2:
+def task2(points,emu):
+    """Compute the filtration value for the points in emu"""
+    emu = emu[:]
+    filtration = minimal_enclosing_sphere(emu).radius
+    return filtration
+
+def enum_simplex(points):
+    "à compléter"
+
+
+print("---------Question 1----------")
+
+
+
+
+
+
+
