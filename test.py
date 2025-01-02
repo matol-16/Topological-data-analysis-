@@ -1,4 +1,4 @@
-import Tasks as t
+import  Tasks as t
 import numpy as np
 
 # Test cases
@@ -104,7 +104,11 @@ def test_task2():
         print("Test 2 all passed! ")
 def test_task3():
     P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
-    t.task3(P,1000)
+    t.task3(P,10)
+def test_task3_mathias():
+    P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
+    t.task3_mathias(P,10)
+
 
 
 print("---------Question 1------------")
@@ -113,4 +117,6 @@ print("---------Question 2------------")
 test_task2()
 print("---------Question 3------------")
 test_task3()
+print("fonction mathias:")
+test_task3_mathias()
 

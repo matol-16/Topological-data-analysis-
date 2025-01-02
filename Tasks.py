@@ -284,7 +284,7 @@ def task3_mathias(points,l):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
 
     emu = enum3(points)
-    simplex={(0):0} #indique 
+    simplex = {tuple([i]): 0 for i in range(len(points))} #on initialise le premier simplexe
     #IsSimplex = {0:True} #dictionnaire indiquant si un sous ensemble forme un simplexe
     IsSimplex= [[0] * len(sublist) for sublist in emu] # le tableau de suivi: 0 si jamais vu, 1 si simplexe, 2 si pas un simplexe
 
@@ -292,25 +292,29 @@ def task3_mathias(points,l):
 
 
     #Vestion 1 Mathias: pas optimale, on évite pas tj de calculer les simplexes qui en contiennent d'autres
-    for i in range(len(emu)):
+    for i in range(1,len(emu)):
         for j in range(len(emu[i])):
             test = IsSimplex[i][j]
             if(test==0): #pas encore connu
                 filtration = task2(points,emu[i][j])
                 if (filtration > l): #pas un simplexe
-                    emu[i][j] = 2
+                    IsSimplex[i][j] = 2
                     if(i<n-1): #on s'assure qu'on est pas à la dernière ligne
                         for k in range(n-i-1-j):
-                         emu[i+1][j+k]=2 #les sous ensembles de taille supérieure qui contiennent emu[i,j] ne sont pas non plus des simplexes
+                         IsSimplex[i+1][j+k]=2 #les sous ensembles de taille supérieure qui contiennent emu[i,j] ne sont pas non plus des simplexes
                 else:
-                    emu[i][j] = 1
-                    simplex[emu[i][j]]=filtration
+                    IsSimplex[i][j] = 1
+                    simplex[tuple(emu[i][j])]=filtration
             elif(test==1): #est un simplexe -> normalement impossible de revenir sur nos pas !
                 raise RecursionError("l'ago revient sur ses pas !")
             #Sinon, test ==2 et ce n'est pas un simplexe. on passe au prochain. Pas besoin de tester cette éventualité
+    
+    for key, value in simplex.items():
+        print(f"{key} -> {value}")
+    
     return simplex   
 
- 
+
 def task3(points,l):
     enum = enum3(points)
     IsSimplex = {tuple([i]): 1 for i in range(len(points))}
