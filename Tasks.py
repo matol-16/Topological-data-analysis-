@@ -106,6 +106,7 @@ def welzl(P, R):
     P.append(p)
     return result
 
+
 def minimal_enclosing_sphere(points):
     """Compute the minimal enclosing sphere for a set of points."""
     points = points[:]
@@ -257,6 +258,12 @@ from itertools import combinations #On utilise ici une bibliothèque pour le tra
         
 
 def enum3(points):
+    """
+    Génère un tableau où chaque ligne correspond aux sous-ensembles d'une certaine taille.
+    """
+    n = len(points)
+    return [[list(comb) for comb in combinations(range(n), k)] for k in range(1, n + 1)]
+
     "crée le tableau énumérant pour chaque taille (lignes) les sous ensembles: il représente un arbre"
     "il doit permettre de savoir si un simplexe de taille inférieure à la taille considérée existe"
     n=len(points)
@@ -272,7 +279,7 @@ def enum3(points):
     return enum
 
   
-def task3(points,l):
+def task3_mathias(points,l):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
 
     emu = enum3(points)
@@ -295,7 +302,60 @@ def task3(points,l):
                         for k in range(n-i-1-j):
                          emu[i+1][j+k]=2 #les sous ensembles de taille supérieure qui contiennent emu[i,j] ne sont pas non plus des simplexes
                         
+    
+def task3(points,l):
+    enum = enum3(points)
+    IsSimplex = {tuple([i]): 1 for i in range(len(points))}
+
+    simplex = {tuple([i]): Sphere(points[i], 0) for i in range(len(points))} #on initialise le premier simplexe
+
+    
+    for i in range(1,len(enum)):
+        for j in range(len(enum[i-1])):
+            current_simplex = enum[i-1][j]
+
+            for k in range(len(points)):
+
+                pn =tuple(current_simplex + [k])
+
+                if k in current_simplex:
+                    IsSimplex[pn] = 0
+                    break
+
+                if pn in simplex:
+                    break
+
+                new_points = [points[idx] for idx in current_simplex] + [points[k]]
+
+                MEB = minimal_enclosing_sphere(new_points)
+
+                if MEB.radius < l:
+                    simplex[pn] = MEB
+                    IsSimplex[pn] = 1
                 else:
+                    IsSimplex[pn] = 0
+
+    for key, value in simplex.items():
+        print(f"{key} -> {value.radius}")
+
+def test_task3():
+    P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
+    task3(P,1000)
+
+test_task3()
+
+def task4(points):
+    """"Reuse the LP-type algorithm with new parameters in order to determine
+if a simplex is in the α-complex and its filtration value. Note that this is less
+standard than for the MEB, you need to explain how this new problem fits in
+the framework."""
+    MEB = minimal_enclosing_sphere(points)
+    for p in points:
+        if not MEB.contains(p):
+            return False
+    return True
+        
+
                     emu[i][j] = 1
                     simplex[emu[i][j]]=filtration
             elif(test==1): #est un simplexe -> normalement impossible de revenir sur nos pas !
