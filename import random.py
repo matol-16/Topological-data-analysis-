@@ -151,11 +151,14 @@ def test_task1():
 
 
 
-print("---------Question 2------------")
-
+print("---------Question 1------------")
+test_task1()
 
 
 ## Question 2:
+
+#Ici, on déduit que la filtration value de chaque simplexe est le MEB (à vérifier)
+
 def task2(points,emu):
     """Compute the filtration value for the points in emu"""
 
@@ -230,11 +233,49 @@ def test_task2():
 test_task2()
 
 def enum_simplex(points):
-    "à compléter"
+    "énumère et affiche les simplexes avec la valeur de filtrage"
+    parties= [] #on fait la liste des sous ensembles de points:
 
 
-print("---------Question 3----------")
+    i, imax = 0, 2**len(points)-1 #on construit un itérateur i, dont les bits 1 seront les points sélectionnés dans le sous ensemble
+    while i <= imax:
+        s = []
+        j, jmax = 0, len(points)-1
+        while j <= jmax:
+            if (i>>j)&1 == 1:
+                s.append(points[j])
+            j += 1
+        parties.append(s)
+        i += 1 
 
+    #on affiche les simplexes avec filtration value
+
+    for enum in parties:
+        filtration = task2(points,enum)
+        print(f"({enum}) -> {filtration}")
+
+
+print("---------Question 2------------")
+test_task2()
+
+print("---------Question 3------------")
+
+from itertools import combinations
+
+
+def enum3(points):
+    "crée le tableau énumérant pour chaque taille (lignes) les sous ensembles: il représente un arbre"
+    "il doit permettre de savoir si un simplexe de taille inférieure à la taille considérée existe"
+    n=len(points)
+    enum=[]
+
+    enum[0]=[[ens] for ens in range(n)]
+
+    k=2 #taille du sous ensemble
+    while(k<=n):
+        enum[k-1]=[comb for comb in combinations(enum[0], k)]#on va exploiter le format de sortie de la fonction combinaisons
+    return enum
+  
 def task3(points,emu,IsSimplex):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
     simplex={0:0}
@@ -251,9 +292,4 @@ def task3(points,emu,IsSimplex):
                     simplex(emu[i][j+k])=minimal_enclosing_sphere(points[emu[i-1][j]].append(points[k]))
 
     print(simplex)
-
-
-
-
-
 
