@@ -106,7 +106,6 @@ def welzl(P, R):
     P.append(p)
     return result
 
-print("---------Question 1------------")
 
 def minimal_enclosing_sphere(points):
     """Compute the minimal enclosing sphere for a set of points."""
@@ -227,12 +226,10 @@ def test_task2():
         print(f"Test({enu})passed!")
 
         enu=[3,2,1,0]
-        assert np.allclose(task2(P,[enu]).radius, 5.09902)   
+        assert np.allclose(task2(P,enu), 5.09902)   
         print(f"Test({enu})passed!")
 
         print("Test 2 all passed! ")
-
-test_task2()
 
 def enum_simplex2(points):
     "énumère et affiche les simplexes avec la valeur de filtrage"
@@ -264,39 +261,56 @@ print("---------Question 3------------")
 
 from itertools import combinations #On utilise ici une bibliothèque pour le travail combinatoire -> à faire à la main plus tard.
 
-
 def enum3(points):
-    "crée le tableau énumérant pour chaque taille (lignes) les sous ensembles: il représente un arbre"
-    "il doit permettre de savoir si un simplexe de taille inférieure à la taille considérée existe"
-    n=len(points)
-    enum=[]
+    """
+    Génère un tableau où chaque ligne correspond aux sous-ensembles d'une certaine taille.
+    """
+    n = len(points)
+    return [[list(comb) for comb in combinations(range(n), k)] for k in range(1, n + 1)]
 
-    enum[0]=[[ens] for ens in range(n)]
-
-    k=2 #taille du sous ensemble
-    while(k<=n):
-        enum[k-1]=[comb for comb in combinations(enum[0], k)]#on va exploiter le format de sortie de la fonction combinaisons
-    return enum
 
   
 def task3(points,l):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
-
+    
+    
     enum = enum3(points)
-    isSimplex = np.zeros((np.shape(enum)))
+    IsSimplex = {tuple([i]): 1 for i in range(len(points))}
 
-    simplex={0:0}
-    l=len(points)
+    simplex = {tuple([i]): Sphere(points[i], 0) for i in range(len(points))} #on initialise le premier simplexe
 
-    for i in len(emu):
-        for j in len(emu[i-1]):
-            if(not IsSimplex(emu[i][j])): 
-                break
-            for k in len(points):
-                if(simplex(emu[i][j]).contain(points[k])):
-                    simplex(emu[i][j+k])=simplex(emu[i-1][j])
+    
+    for i in range(1,len(enum)):
+        for j in range(len(enum[i-1])):
+            current_simplex = enum[i-1][j]
+
+            for k in range(len(points)):
+
+                pn =tuple(current_simplex + [k])
+
+                if k in current_simplex:
+                    IsSimplex[pn] = 0
+                    break
+
+                if pn in simplex:
+                    break
+
+                new_points = [points[idx] for idx in current_simplex] + [points[k]]
+
+                MEB = minimal_enclosing_sphere(new_points)
+
+                if MEB.radius < l:
+                    simplex[pn] = MEB
+                    IsSimplex[pn] = 1
                 else:
-                    simplex(emu[i][j+k])=minimal_enclosing_sphere(points[emu[i-1][j]].append(points[k]))
+                    IsSimplex[pn] = 0
 
-    print(simplex)
+    for key, value in simplex.items():
+        print(f"{key} -> {value.radius}")
+
+def test_task3():
+    P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
+    task3(P,1000)
+
+test_task3()
 
