@@ -314,3 +314,16 @@ def test_task3():
 
 test_task3()
 
+def task4(points):
+    """"Reuse the LP-type algorithm with new parameters in order to determine
+if a simplex is in the α-complex and its filtration value. Note that this is less
+standard than for the MEB, you need to explain how this new problem fits in
+the framework."""
+    MEB = minimal_enclosing_sphere(points)
+    for p in points:
+        if not MEB.contains(p):
+            return False
+    return True
+        
+
+
