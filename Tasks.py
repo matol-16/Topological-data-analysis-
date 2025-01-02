@@ -264,6 +264,7 @@ def enum3(points):
     n = len(points)
     return [[list(comb) for comb in combinations(range(n), k)] for k in range(1, n + 1)]
 
+def enum3_mathias(points):
     "crée le tableau énumérant pour chaque taille (lignes) les sous ensembles: il représente un arbre"
     "il doit permettre de savoir si un simplexe de taille inférieure à la taille considérée existe"
     n=len(points)
@@ -301,8 +302,15 @@ def task3_mathias(points,l):
                     if(i<n-1): #on s'assure qu'on est pas à la dernière ligne
                         for k in range(n-i-1-j):
                          emu[i+1][j+k]=2 #les sous ensembles de taille supérieure qui contiennent emu[i,j] ne sont pas non plus des simplexes
-                        
-    
+                else:
+                    emu[i][j] = 1
+                    simplex[emu[i][j]]=filtration
+            elif(test==1): #est un simplexe -> normalement impossible de revenir sur nos pas !
+                raise RecursionError("l'ago revient sur ses pas !")
+            #Sinon, test ==2 et ce n'est pas un simplexe. on passe au prochain. Pas besoin de tester cette éventualité
+    return simplex   
+
+ 
 def task3(points,l):
     enum = enum3(points)
     IsSimplex = {tuple([i]): 1 for i in range(len(points))}
@@ -355,16 +363,6 @@ the framework."""
             return False
     return True
         
-
-                    emu[i][j] = 1
-                    simplex[emu[i][j]]=filtration
-            elif(test==1): #est un simplexe -> normalement impossible de revenir sur nos pas !
-                raise RecursionError("l'ago revient sur ses pas !")
-            #Sinon, test ==2 et ce n'est pas un simplexe. on passe au prochain. Pas besoin de tester cette éventualité
-    
-        
- 
-    return simplex
 
 
     
