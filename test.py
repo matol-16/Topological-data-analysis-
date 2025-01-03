@@ -120,6 +120,25 @@ def test_task3_mathias():
         t.task3_mathias(P,l)
 
 
+def test_task4():
+    P=[(0,5,0),(3,4,0),(-3,4,0)]
+    P1=P
+    print(f"---- Test for {P1}")
+    a=t.task4(P1,P)
+    print(f"Complex ? {a[0]} ; Radius: {a[1]}")
+    P1.append((0,0,4))
+    print(P1)
+    print(f"---- Test for {P1}")
+    a=t.task4(P1,P)
+    print(f"Complex ? {a[0]} ; Radius: {a[1]}")
+    P1.append((0,0,-4))
+    print(f"---- Test for {P1}")
+    a=t.task4(P1,P)
+    print(f"Complex ? {a[0]} ; Radius: {a[1]}")
+
+
+
+
 
 print("---------Question 1------------")
 test_task1()
@@ -129,4 +148,6 @@ print("---------Question 3------------")
 test_task3()
 print("fonction mathias:")
 test_task3_mathias()
+print("---------Question 4------------")
+test_task4()
 
