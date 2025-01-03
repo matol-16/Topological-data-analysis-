@@ -1,5 +1,7 @@
 import random
 import numpy as np
+from scipy.linalg import null_space
+from scipy.spatial import ConvexHull
 
 
 ## QUESTION 1:
@@ -17,83 +19,58 @@ class Sphere:
         """Check if the sphere contains the given point."""
         norme = np.linalg.norm(self.center - np.array(point))
         return not (np.isclose((norme),self.radius) or norme>self.radius+1e-9)
+    
+    def onradius(self,point):
+        """Check if the point is on the sphere"""
+        return np.isclose(np.linalg.norm(self.center - np.array(point)),self.radius)
 
-def make_sphere_two_points(p1, p2):
-    """Create a sphere with two points on its boundary."""
-    center = (np.array(p1) + np.array(p2)) / 2
-    radius = np.linalg.norm(np.array(p1) - np.array(p2)) / 2
+def make_sphere_n_points(points):
+    """
+    trouver le minimal circumcircle dans l'espace d-dimension de n points (n <= d+1)
+    
+    parametre :
+        points: np.ndarray, shape (n, d)
+    return:
+        Sphere
+    """
+    points = np.array(points)
+    print(points)
+    n, d = points.shape
+    
+    #构造n-1个向量
+    A = points[1:] - points[0]
+    print(A)
+    
+    #计算中点
+    m=(points[1:] + points[0])*0.5
+    print(m)
+    #计算b
+    b=[]
+    for i in range(n-1):
+        b.append(np.dot(A[i],m[i]))
+    print(b)
+    
+    #在A张成的线性子空间中解Ax=b,得到圆心
+    if n==d+1:
+        center =  np.linalg.solve(A@A, b) @ A 
+    else:
+        center = np.linalg.lstsq(A@A, b, rcond=None)[0] @ A
+    print(center)
+    #计算半径
+    radius = np.linalg.norm(center - points[0])
+    
+    # 返回最小外接球的实例
     return Sphere(center, radius)
-
-def make_sphere_three_points(p1, p2, p3):
-    """Create a sphere with three points on its boundary."""
-    A = np.array(p1)
-    B = np.array(p2)
-    C = np.array(p3)
-
-    # Solve for the circumcenter of the triangle
-    AB = B - A
-    AC = C - A
-    ABxAC = np.cross(AB, AC)
-
-    if np.linalg.norm(ABxAC) == 0:
-        raise ValueError("Points are collinear!")
-
-    circumcenter = (
-        np.cross(np.dot(AB, AB) * AC - np.dot(AC, AC) * AB, ABxAC) / (2 * np.linalg.norm(ABxAC)**2)
-    )
-    center = A + circumcenter
-    radius = np.linalg.norm(center - A)
-    return Sphere(center, radius)
-
-def make_sphere_four_points(p1, p2, p3, p4):
-    """Create a sphere with four points on its boundary."""
-    A = np.array(p1)
-    B = np.array(p2)
-    C = np.array(p3)
-    D = np.array(p4)
-
-    # Compute the matrix to solve the circumcenter
-    M = np.array([
-        [np.dot(A, A), A[0], A[1], A[2], 1],
-        [np.dot(B, B), B[0], B[1], B[2], 1],
-        [np.dot(C, C), C[0], C[1], C[2], 1],
-        [np.dot(D, D), D[0], D[1], D[2], 1]
-    ])
-    Mx = np.copy(M)
-    Mx[:, 1] = 1
-
-    My = np.copy(M)
-    My[:, 2] = 1
-
-    Mz = np.copy(M)
-    Mz[:, 3] = 1
-
-    Mdet = np.linalg.det(M[:, 1:])
-    Mxdet = np.linalg.det(Mx[:, 1:])
-    Mydet = np.linalg.det(My[:, 1:])
-    Mzdet = np.linalg.det(Mz[:, 1:])
-
-    if np.isclose(Mdet, 0):
-        raise ValueError("Points are coplanar or collinear!")
-
-    center = np.array([Mxdet, Mydet, Mzdet]) / (2 * Mdet)
-    radius = np.linalg.norm(center - A)
-    return Sphere(center, radius)
-
+    
 def trivial(R):
+    
     """Find the minimal sphere for 0, 1, 2, 3, or 4 points."""
     if not R:
         return Sphere([0, 0, 0], 0)
     elif len(R) == 1:
         return Sphere(R[0], 0)
-    elif len(R) == 2:
-        return make_sphere_two_points(R[0], R[1])
-    elif len(R) == 3:
-        return make_sphere_three_points(R[0], R[1], R[2])
-    elif len(R) == 4:
-        return make_sphere_four_points(R[0], R[1], R[2], R[3])
-    else:
-        raise ValueError("trivial function called with more than 4 points!")
+    elif len(R) >= 1:
+        return make_sphere_n_points(R)
 
 def welzl(P, R):
     """Recursive implementation of Welzl's algorithm for 3D."""
@@ -111,14 +88,12 @@ def welzl(P, R):
     P.append(p)
     return result
 
-
 def minimal_enclosing_sphere(points):
     """Compute the minimal enclosing sphere for a set of points."""
     points = points[:]
     random.shuffle(points)
     return welzl(points, [])
-
-
+   
 ## Question 2:
 
 #Ici, on déduit que la filtration value de chaque simplexe est le MEB (à vérifier)
@@ -168,22 +143,6 @@ def enum3(points):
     """
     n = len(points)
     return [[list(comb) for comb in combinations(range(n), k)] for k in range(1, n + 1)]
-
-def enum3_mathias(points):
-    "crée le tableau énumérant pour chaque taille (lignes) les sous ensembles: il représente un arbre"
-    "il doit permettre de savoir si un simplexe de taille inférieure à la taille considérée existe"
-    n=len(points)
-    enum=[]
-    l1=[ens for ens in range(n)]
-
-    enum.append([(ens,) for ens in range(n)])
-
-    k=2 #taille du sous ensemble
-    while(k<=n):
-        enum.append([comb for comb in combinations(l1, k)])#on va exploiter le format de sortie de la fonction combinaisons
-        k=k+1
-    return enum
-
   
 def task3_mathias(points,l):
     """implement an algorithm that enumerates the simplexes and their filtration values."""
@@ -255,13 +214,27 @@ def task3(points,l):
     for key, value in simplex.items():
         print(f"{key} -> {value.radius}")
 
-def test_task3():
-    P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
-    task3(P,1000)
+def Is_in_alpha_complex(P):
+    R=[]
+    if len(P)<len(P[0])+1  :
+        return True
+    
+    for i in range(len(P[0])+1):
+       R.append(P.pop(random.randint(0, len(P) - 1)))
 
-test_task3()
+    MEB=make_sphere_n_points(R)
+    
+    for p in R :
+       if not MEB.onradius(p):
+           return False
+    
+    for p in P:
+       if MEB.contains(p):
+           return False
 
-def task4(points,emu):
+    return True
+
+def task4(points):
     """"Reuse the LP-type algorithm with new parameters in order to determine
 if a simplex is in the α-complex and its filtration value. Note that this is less
 standard than for the MEB, you need to explain how this new problem fits in
@@ -269,13 +242,153 @@ the framework."""
 
     """On part du principe que pour trouver le cercle le plus petit possible qui a ces points sur sa frontière,
     il suffit de calculer leur MEB (qui a nécessairement 2 points sur sa frontière) et de voir si le MEB a tous les points sur sa frontière"""
-    MEB = minimal_enclosing_sphere(emu)
-    for p in points:
-        if not MEB.onradius(p):
-            return False,None
-    return True, MEB.radius
-        
+    
+    return Is_in_alpha_complex(points)
 
+
+# Test cases
+def test_task1():
+    """Test cases for minimal enclosing sphere."""
+    # Test 1: Single point
+    points = [(0, 0, 0)]
+    sphere = minimal_enclosing_sphere(points)
+    assert np.allclose(sphere.center, [0, 0, 0])
+    assert np.isclose(sphere.radius, 0)
+    print("Test 1.1 passed!")
+
+    # Test 2: Two points
+    points = [(0, 0, 0), (2, 0, 0)]
+    sphere = minimal_enclosing_sphere(points)
+    print(sphere.center)
+    assert np.allclose(sphere.center, [1, 0, 0])
+    assert np.isclose(sphere.radius, 1)
+    print("Test 1.2 passed!")
+
+    # Test 3: Three points
+    points = [(-10, 0, 0), (10, 0, 0), (0, 1, 0)]
+    sphere = minimal_enclosing_sphere(points)
+    assert np.allclose(sphere.center, [0, 0, 0])
+    assert np.isclose(sphere.radius, 10)
+    print("Test 1.3 passed!")
+
+    # Test 4: Four points
+    points = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
+    sphere =  minimal_enclosing_sphere(points)
+    assert np.allclose(sphere.center, [0, 0, 0])
+    assert np.isclose(sphere.radius, np.sqrt(26))
+    print("Test 1.4 passed!")
+
+ 
+
+    print("All test cases passed!")
+
+
+# Test cases
+def test_task2():
+        P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
+
+        enu=[0]
+        assert np.allclose(task2(P,enu), 0)  
+        print(f"Test({enu})passed!")
+
+        enu=[1]
+        assert np.allclose( task2(P,enu), 0)  
+        print(f"Test({enu})passed!")
+
+        enu=[2]
+        assert np.allclose( task2(P,enu), 0)  
+        print(f"Test({enu})passed!")
+
+        enu=[3]
+        assert np.allclose( task2(P,enu), 0)
+        print(f"Test({enu})passed!")
+
+        enu=[2,1]
+        assert np.allclose( task2(P,enu), 3.53553)   
+        print(f"Test({enu})passed!")
+
+        enu=[1,0]
+        assert np.allclose( task2(P,enu), 3.67425)   
+        print(f"Test({enu})passed!")
+
+        enu=[3,2]
+        assert np.allclose( task2(P,enu), 4)   
+        print(f"Test({enu})passed!")
+
+        enu=[2,0]
+        assert np.allclose( task2(P,enu), 4.12311)   
+        print(f"Test({enu})passed!")
+
+        enu=[3,0]
+        assert np.allclose( task2(P,enu), 4.12311)   
+        print(f"Test({enu})passed!")
+
+        enu=[2,1,0]
+        assert np.allclose( task2(P,enu), 4.39525)   
+        print(f"Test({enu})passed!")
+
+        enu=[3,2,0]
+        assert np.allclose( task2(P,enu), 4.71495)   
+        print(f"Test({enu})passed!")
+
+        enu=[3,1]
+        assert np.allclose( task2(P,enu), 4.94975)   
+        print(f"Test({enu})passed!")
+
+        enu=[3,2,1]
+        assert np.allclose( task2(P,enu), 5)   
+        print(f"Test({enu})passed!")
+
+        enu=[3,1,0]
+        assert np.allclose( task2(P,enu), 5.04975)   
+        print(f"Test({enu})passed!")
+
+        enu=[3,2,1,0]
+        assert np.allclose( task2(P,enu), 5.09902)   
+        print(f"Test({enu})passed!")
+
+        print("Test 2 all passed! ")
+        
+def test_task3():
+    P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
+    task3(P,1000)
+
+
+def test_task4():
+    P=[(0,5,0),(3,4,0),(-3,4,0)]
+    
+    
+    print(f"---- Test for {P}")
+    a= task4(P)
+    print(f"Complex ? {a}")
+
+    P.append((0,0,4))
+    print(f"---- Test for {P}")
+    a= task4(P)
+    print(f"Complex ? {a}")
+
+    P.append((0,0,-4))
+    print(f"---- Test for {P}")
+    a= task4(P)
+    print(f"Complex ? {a}")
+
+
+
+
+
+print("---------Question 1------------")
+test_task1()
+print("---------Question 2------------")
+test_task2()
+print("---------Question 3------------")
+test_task3()
+#print("fonction mathias:")
+#test_task3_mathias()
+print("---------Question 4------------")
+test_task4()
+
+
+        
 
     
 
