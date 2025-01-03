@@ -11,7 +11,12 @@ class Sphere:
 
     def contains(self, point):
         """Check if the sphere contains the given point."""
-        return np.linalg.norm(self.center - np.array(point)) <= self.radius + 1e-9
+        return np.linalg.norm(self.center - np.array(point)) <= self.radius #+ 1e-9
+    
+    def contains_strict(self,point):
+        """Check if the sphere contains the given point."""
+        norme = np.linalg.norm(self.center - np.array(point))
+        return not (np.isclose((norme),self.radius) or norme>self.radius+1e-9)
 
 def make_sphere_two_points(p1, p2):
     """Create a sphere with two points on its boundary."""
@@ -256,16 +261,19 @@ def test_task3():
 
 test_task3()
 
-def task4(points):
+def task4(points,emu):
     """"Reuse the LP-type algorithm with new parameters in order to determine
 if a simplex is in the α-complex and its filtration value. Note that this is less
 standard than for the MEB, you need to explain how this new problem fits in
 the framework."""
-    MEB = minimal_enclosing_sphere(points)
+
+    """On part du principe que pour trouver le cercle le plus petit possible qui a ces points sur sa frontière,
+    il suffit de calculer leur MEB (qui a nécessairement 2 points sur sa frontière) et de voir si le MEB a tous les points sur sa frontière"""
+    MEB = minimal_enclosing_sphere(emu)
     for p in points:
-        if not MEB.contains(p):
-            return False
-    return True
+        if not MEB.onradius(p):
+            return False,None
+    return True, MEB.radius
         
 
 
