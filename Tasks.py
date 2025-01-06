@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from itertools import combinations
 
 ## QUESTION 1:
 
@@ -25,6 +26,8 @@ def make_sphere_n_points(points):
     """
     Trouver le minimal circumcircle dans l'espace d-dimension de n points (n <= d+1).
     
+    when utilising this mathod, we assume that the points are not colinear and that the dimension is at least 2.
+
     Paramètres :
         points: np.ndarray, shape (n, d)
     Retourne :
@@ -50,8 +53,7 @@ def make_sphere_n_points(points):
     return Sphere(center=center, radius=radius)
     
 def trivial(R):
-    
-    """Find the minimal sphere for 0, 1, 2, 3, or 4 points."""
+    """Find the minimal sphere for 0, 1 or mores points."""
     if not R:
         return Sphere([0, 0, 0], 0)
     elif len(R) == 1:
@@ -96,7 +98,6 @@ def enum_simplex2(points):
     "énumère et affiche les simplexes avec la valeur de filtrage"
     parties= [] #on fait la liste des sous ensembles de points:
 
-
     i, imax = 0, 2**len(points)-1 #on construit un itérateur i, dont les bits 1 seront les points sélectionnés dans le sous ensemble
     while i <= imax:
         s = []
@@ -113,11 +114,7 @@ def enum_simplex2(points):
     for enum in parties:
         filtration = task2(points,enum)
         print(f"({enum}) -> {filtration}")
-
-
-
-from itertools import combinations #On utilise ici une bibliothèque pour le travail combinatoire -> à faire à la main plus tard.     
-
+    
 def enum3(points):
     """
     Génère un tableau où chaque ligne correspond aux sous-ensembles d'une certaine taille.
@@ -158,7 +155,6 @@ def task3_mathias(points,l):
         print(f"{key} -> {value}")
     
     return simplex   
-
 
 def task3(points,l):
     enum = enum3(points)
@@ -214,7 +210,7 @@ def filtration_value(R):
     """Compute the filtration value of the simplex R"""
     return make_sphere_n_points(R).radius
 
-def task4_Is_in_alpha_complex(points,R):
+def task4(points,R):
     """"Reuse the LP-type algorithm with new parameters in order to determine
 if a simplex is in the α-complex and its filtration value. Note that this is less
 standard than for the MEB, you need to explain how this new problem fits in
@@ -223,18 +219,7 @@ the framework."""
     """On part du principe que pour trouver le cercle le plus petit possible qui a ces points sur sa frontière,
     il suffit de calculer leur MEB (qui a nécessairement 2 points sur sa frontière) et de voir si le MEB a tous les points sur sa frontière"""
     
-    return Is_in_alpha_complex(points,R)
-
-def task4_filtration_value(R):
-    """"Reuse the LP-type algorithm with new parameters in order to determine
-if a simplex is in the α-complex and its filtration value. Note that this is less
-standard than for the MEB, you need to explain how this new problem fits in
-the framework."""
-
-    """On part du principe que pour trouver le cercle le plus petit possible qui a ces points sur sa frontière,
-    il suffit de calculer leur MEB (qui a nécessairement 2 points sur sa frontière) et de voir si le MEB a tous les points sur sa frontière"""
-    
-    return filtration_value(R)
+    return Is_in_alpha_complex(points,R),filtration_value(R)
 
 def task5(points,K,l):
       """ Given a set P of n points in Rd, implement an algorithm that enu-
@@ -255,7 +240,6 @@ the α-complex and their filtration values."""
               for k in range(len(points)):
                   
                   if k in current_simplex:
-                      IsSimplex[tuple(current_simplex + [k])] = 0
                       break
                   
                   pn =tuple(current_simplex + [k])
@@ -279,8 +263,6 @@ the α-complex and their filtration values."""
                   else:
                       IsSimplex[pn] = 0
 
-                  
-                  
                   print(f"new simplex: {pn} -> {MEB.radius} with filtration value {filtration_value}")
 
 # Test cases
@@ -394,26 +376,26 @@ def test_task4():
     P=[(0,5,0),(3,4,0),(-3,4,0)]
     R=P
     print(f"---- Test for {P}")
-    a= task4_Is_in_alpha_complex(P,R)
-    print(f"Complex ? {a}")
-    print(f"filtration value: {task4_filtration_value(R)}")
+    a= task4(P,R)
+    print(f"Complex ? {a[0]}")
+    print(f"filtration value: {a[1]}")
 
     P.append((0,0,4))
     R=P
     print(f"---- Test for {P}")
-    a= task4_Is_in_alpha_complex(P,R)
-    print(f"Complex ? {a}")
-    print(f"filtration value: {task4_filtration_value(R)}")
+    a= task4(P,R)
+    print(f"Complex ? {a[0]}")
+    print(f"filtration value: {a[1]}")
 
     P.append((0,0,-4))
     print(f"---- Test for {P}")
-    a= task4_Is_in_alpha_complex(P,R)
-    print(f"Complex ? {a}")
-    print(f"filtration value: {task4_filtration_value(R)}")
+    a= task4(P,R)
+    print(f"Complex ? {a[0]}")
+    print(f"filtration value: {a[1]}")
 
 def test_task5():
  #generate random n points in R^d:
- n=random.randint(5,20)
+ n=random.randint(5,10)
  print(f"n={n}")
  d=random.randint(2,5)
  print(f"d={d}")
@@ -421,7 +403,7 @@ def test_task5():
  print(f"Points: {points}")
  k=random.randint(2,d)
  print(f"k={k}")
- l=random.randint(1,10)
+ l=random.randint(0,1)
  print(f"l={l}")
  task5(points,k,l)
 
@@ -435,5 +417,5 @@ def test_task5():
 #test_task3_mathias()
 #print("---------Question 4------------")
 #test_task4()
-print("---------Question 5------------")
+#print("---------Question 5------------")
 test_task5()    
