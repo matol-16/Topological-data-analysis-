@@ -1,8 +1,5 @@
 import random
 import numpy as np
-from scipy.linalg import null_space
-from scipy.spatial import ConvexHull
-
 
 ## QUESTION 1:
 
@@ -228,7 +225,7 @@ def Is_in_alpha_complex(P):
 
     return True
 
-def task4(points):
+def task4_Is_in_alpha_complex(points):
     """"Reuse the LP-type algorithm with new parameters in order to determine
 if a simplex is in the α-complex and its filtration value. Note that this is less
 standard than for the MEB, you need to explain how this new problem fits in
@@ -353,17 +350,17 @@ def test_task4():
     
     
     print(f"---- Test for {P}")
-    a= task4(P)
+    a= task4_Is_in_alpha_complex(P)
     print(f"Complex ? {a}")
 
     P.append((0,0,4))
     print(f"---- Test for {P}")
-    a= task4(P)
+    a= task4_Is_in_alpha_complex(P)
     print(f"Complex ? {a}")
 
     P.append((0,0,-4))
     print(f"---- Test for {P}")
-    a= task4(P)
+    a= task4_Is_in_alpha_complex(P)
     print(f"Complex ? {a}")
 
 
