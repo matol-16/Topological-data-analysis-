@@ -33,39 +33,32 @@ def make_sphere_n_points(points):
     Retourne :
         Sphere
     """
-    points = np.array(points)
+    points = np.array(points, dtype=float)
     N, d = points.shape
 
     if N > d + 1:
         raise ValueError("Le nombre de points doit être <= d + 1.")
 
     # Calcul de la matrice A et du vecteur b
-    A = np.zeros((N-1, N-1))
-    b = np.zeros(N-1)
+    diffs = points[1:] - points[0]  # Différences (P^n - P^0) pour n = 1, ..., N-1
+    A = 2 * np.dot(diffs, diffs.T)  # Matrice A
+    b = np.sum(diffs ** 2, axis=1)  # Vecteur b
 
-    # Construire le système linéaire
-    #A_{mn}=2P_i^{m0}\sum_i (P_i^n-P_i^0)
-
-    for i in range(0,N-1):
-        for j in range(0,N-1):
-         A[i][j] = 2 * np.dot(points[i+1] - points[0], points[j+1] - points[0])
-        b[i] = np.sum((points[i+1] - points[0]) ** 2)
-
-     # Résoudre le système linéaire pour trouver les coefficients k
+    # Vérification du rang de la matrice A
     if np.linalg.matrix_rank(A) < min(A.shape):
         raise ValueError("Les points donnés ne définissent pas un cercle circonscrit unique.")
 
+    # Résolution du système linéaire pour trouver les coefficients k
     k = np.linalg.solve(A, b)
 
-    center = np.zeros(d)
-    for i in range(N-1):
-        center += k[i] * (points[i+1]-points[0])
-    center = center + points[0]
+    # Calculer le centre
+    center = points[0] + np.dot(k, diffs)
 
     # Calculer le rayon
     radius = np.linalg.norm(center - points[0])
+
     # Retourner une instance de Sphere
-    return Sphere(center, radius)
+    return Sphere(center=center, radius=radius)
     
 def trivial(R):
     
