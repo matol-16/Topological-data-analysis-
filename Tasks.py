@@ -26,40 +26,45 @@ class Sphere:
 
 def make_sphere_n_points(points):
     """
-    trouver le minimal circumcircle dans l'espace d-dimension de n points (n <= d+1)
+    Trouver le minimal circumcircle dans l'espace d-dimension de n points (n <= d+1).
     
-    parametre :
+    Paramètres :
         points: np.ndarray, shape (n, d)
-    return:
+    Retourne :
         Sphere
     """
     points = np.array(points)
-    print(points)
-    n, d = points.shape
+    N, d = points.shape
+
+    if N > d + 1:
+        raise ValueError("Le nombre de points doit être <= d + 1.")
+
+    # Calcul de la matrice A et du vecteur b
+    A = np.zeros((N-1, N-1))
+    b = np.zeros(N-1)
+
+    # Construire le système linéaire
+    #A_{mn}=2P_i^{m0}\sum_i (P_i^n-P_i^0)
+
+    for i in range(0,N-1):
+        for j in range(0,N-1):
+         A[i][j] = 2 * np.dot(points[i+1] - points[0], points[j+1] - points[0])
+        b[i] = np.sum((points[i+1] - points[0]) ** 2)
+
+     # Résoudre le système linéaire pour trouver les coefficients k
+    if np.linalg.matrix_rank(A) < min(A.shape):
+        raise ValueError("Les points donnés ne définissent pas un cercle circonscrit unique.")
+
+    k = np.linalg.solve(A, b)
+
+    center = np.zeros(d)
+    for i in range(N-1):
+        center += k[i] * (points[i+1]-points[0])
+    center = center + points[0]
     
-    #构造n-1个向量
-    A = points[1:] - points[0]
-    print(A)
-    
-    #计算中点
-    m=(points[1:] + points[0])*0.5
-    print(m)
-    #计算b
-    b=[]
-    for i in range(n-1):
-        b.append(np.dot(A[i],m[i]))
-    print(b)
-    
-    #在A张成的线性子空间中解Ax=b,得到圆心
-    if n==d+1:
-        center =  np.linalg.solve(A@A, b) @ A 
-    else:
-        center = np.linalg.lstsq(A@A, b, rcond=None)[0] @ A
-    print(center)
-    #计算半径
+    # Calculer le rayon
     radius = np.linalg.norm(center - points[0])
-    
-    # 返回最小外接球的实例
+    # Retourner une instance de Sphere
     return Sphere(center, radius)
     
 def trivial(R):
