@@ -348,7 +348,6 @@ def test_task3():
 def test_task4():
     P=[(0,5,0),(3,4,0),(-3,4,0)]
     
-    
     print(f"---- Test for {P}")
     a= task4_Is_in_alpha_complex(P)
     print(f"Complex ? {a}")
