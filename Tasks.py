@@ -61,7 +61,7 @@ def make_sphere_n_points(points):
     for i in range(N-1):
         center += k[i] * (points[i+1]-points[0])
     center = center + points[0]
-    
+
     # Calculer le rayon
     radius = np.linalg.norm(center - points[0])
     # Retourner une instance de Sphere
@@ -221,17 +221,13 @@ def task3(points,l):
 
 def Is_in_alpha_complex(P):
     R=[]
-    if len(P)<len(P[0])+1  :
+    if len(P)<=len(P[0])+1  :
         return True
     
     for i in range(len(P[0])+1):
        R.append(P.pop(random.randint(0, len(P) - 1)))
 
     MEB=make_sphere_n_points(R)
-    
-    for p in R :
-       if not MEB.onradius(p):
-           return False
     
     for p in P:
        if MEB.contains(p):
