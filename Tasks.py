@@ -31,19 +31,11 @@ def make_sphere_n_points(points):
         Sphere
     """
     points = np.array(points, dtype=float)
-    N, d = points.shape
-
-    if N > d + 1:
-        raise ValueError("Le nombre de points doit être <= d + 1.")
 
     # Calcul de la matrice A et du vecteur b
     diffs = points[1:] - points[0]  # Différences (P^n - P^0) pour n = 1, ..., N-1
     A = 2 * np.dot(diffs, diffs.T)  # Matrice A
     b = np.sum(diffs ** 2, axis=1)  # Vecteur b
-
-    # Vérification du rang de la matrice A
-    if np.linalg.matrix_rank(A) < min(A.shape):
-        raise ValueError("Les points donnés ne définissent pas un cercle circonscrit unique.")
 
     # Résolution du système linéaire pour trouver les coefficients k
     k = np.linalg.solve(A, b)
@@ -100,9 +92,6 @@ def task2(points,emu):
 
     return filtration
 
-
-
-
 def enum_simplex2(points):
     "énumère et affiche les simplexes avec la valeur de filtrage"
     parties= [] #on fait la liste des sous ensembles de points:
@@ -127,10 +116,7 @@ def enum_simplex2(points):
 
 
 
-from itertools import combinations #On utilise ici une bibliothèque pour le travail combinatoire -> à faire à la main plus tard.
-
-
-        
+from itertools import combinations #On utilise ici une bibliothèque pour le travail combinatoire -> à faire à la main plus tard.     
 
 def enum3(points):
     """
@@ -209,13 +195,12 @@ def task3(points,l):
     for key, value in simplex.items():
         print(f"{key} -> {value.radius}")
 
-def Is_in_alpha_complex(P):
-    R=[]
-    if len(P)<=len(P[0])+1  :
-        return True
+def Is_in_alpha_complex(P,R):
+    """Check if the simplex R is in the alpha complex P"""
     
-    for i in range(len(P[0])+1):
-       R.append(P.pop(random.randint(0, len(P) - 1)))
+    #On suppose que le simplex est un simplexe
+    if not R or len(R)<=len(R[0])+1  :
+        return True
 
     MEB=make_sphere_n_points(R)
     
@@ -225,7 +210,11 @@ def Is_in_alpha_complex(P):
 
     return True
 
-def task4_Is_in_alpha_complex(points):
+def filtration_value(R):
+    """Compute the filtration value of the simplex R"""
+    return make_sphere_n_points(R).radius
+
+def task4_Is_in_alpha_complex(points,R):
     """"Reuse the LP-type algorithm with new parameters in order to determine
 if a simplex is in the α-complex and its filtration value. Note that this is less
 standard than for the MEB, you need to explain how this new problem fits in
@@ -234,7 +223,18 @@ the framework."""
     """On part du principe que pour trouver le cercle le plus petit possible qui a ces points sur sa frontière,
     il suffit de calculer leur MEB (qui a nécessairement 2 points sur sa frontière) et de voir si le MEB a tous les points sur sa frontière"""
     
-    return Is_in_alpha_complex(points)
+    return Is_in_alpha_complex(points,R)
+
+def task4_filtration_value(R):
+    """"Reuse the LP-type algorithm with new parameters in order to determine
+if a simplex is in the α-complex and its filtration value. Note that this is less
+standard than for the MEB, you need to explain how this new problem fits in
+the framework."""
+
+    """On part du principe que pour trouver le cercle le plus petit possible qui a ces points sur sa frontière,
+    il suffit de calculer leur MEB (qui a nécessairement 2 points sur sa frontière) et de voir si le MEB a tous les points sur sa frontière"""
+    
+    return filtration_value(R)
 
 
 # Test cases
@@ -344,23 +344,26 @@ def test_task3():
     P = [(5, 0, 1), (-1, -3, 4), (-1, -4, -3), (-1, 4, -3)]
     task3(P,1000)
 
-
 def test_task4():
     P=[(0,5,0),(3,4,0),(-3,4,0)]
-    
+    R=P
     print(f"---- Test for {P}")
-    a= task4_Is_in_alpha_complex(P)
+    a= task4_Is_in_alpha_complex(P,R)
     print(f"Complex ? {a}")
+    print(f"filtration value: {task4_filtration_value(R)}")
 
     P.append((0,0,4))
+    R=P
     print(f"---- Test for {P}")
-    a= task4_Is_in_alpha_complex(P)
+    a= task4_Is_in_alpha_complex(P,R)
     print(f"Complex ? {a}")
+    print(f"filtration value: {task4_filtration_value(R)}")
 
     P.append((0,0,-4))
     print(f"---- Test for {P}")
-    a= task4_Is_in_alpha_complex(P)
+    a= task4_Is_in_alpha_complex(P,R)
     print(f"Complex ? {a}")
+    print(f"filtration value: {task4_filtration_value(R)}")
 
 
 
