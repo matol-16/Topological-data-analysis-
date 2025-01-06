@@ -262,6 +262,7 @@ the α-complex and their filtration values."""
                       IsSimplex[pn] = 1
                   else:
                       IsSimplex[pn] = 0
+                      break
 
                   print(f"new simplex: {pn} -> {MEB.radius} with filtration value {filtration_value}")
 
@@ -403,7 +404,7 @@ def test_task5():
  print(f"Points: {points}")
  k=random.randint(2,d)
  print(f"k={k}")
- l=random.randint(0,1)
+ l=np.random.rand(1)
  print(f"l={l}")
  task5(points,k,l)
 
