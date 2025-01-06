@@ -298,8 +298,6 @@ def test_task1():
     assert np.isclose(sphere.radius, np.sqrt(26))
     print("Test 1.4 passed!")
 
- 
-
     print("All test cases passed!")
 
 
