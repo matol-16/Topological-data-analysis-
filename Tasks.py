@@ -31,7 +31,7 @@ def make_sphere_n_points(points):
         Sphere
     """
     points = np.array(points, dtype=float)
-
+    
     # Calcul de la matrice A et du vecteur b
     diffs = points[1:] - points[0]  # Différences (P^n - P^0) pour n = 1, ..., N-1
     A = 2 * np.dot(diffs, diffs.T)  # Matrice A
@@ -199,7 +199,7 @@ def Is_in_alpha_complex(P,R):
     """Check if the simplex R is in the alpha complex P"""
     
     #On suppose que le simplex est un simplexe
-    if not R or len(R)<=len(R[0])+1  :
+    if not R or len(R)<=len(P[0])+1  :
         return True
 
     MEB=make_sphere_n_points(R)
@@ -236,6 +236,52 @@ the framework."""
     
     return filtration_value(R)
 
+def task5(points,K,l):
+      """ Given a set P of n points in Rd, implement an algorithm that enu-
+merates the simplexes of dimension at most k and filtration value at most l of
+the α-complex and their filtration values.""" 
+      enum = enum3(points)
+      print(f"enum={enum}")
+      filtration_value=0
+      IsSimplex = {tuple([i]): 1 for i in range(len(points))}
+
+      simplex = {tuple([i]): Sphere(points[i], 0) for i in range(len(points))} #on initialise le premier simplexe
+
+      for i in range(1,K):
+          for j in range(len(enum[i-1])):
+              
+              current_simplex = enum[i-1][j]
+
+              for k in range(len(points)):
+                  
+                  if k in current_simplex:
+                      IsSimplex[tuple(current_simplex + [k])] = 0
+                      break
+                  
+                  pn =tuple(current_simplex + [k])
+
+                  if not Is_in_alpha_complex(points,pn):
+                    IsSimplex[pn] = 0
+                    break
+
+                  if pn in simplex:
+                    break
+
+                  new_simplex = [points[idx] for idx in current_simplex] + [points[k]]
+
+                  MEB = trivial(new_simplex)
+
+                  if MEB.radius < l:
+                      if MEB.radius > filtration_value:
+                        filtration_value=MEB.radius
+                      simplex[pn] = MEB
+                      IsSimplex[pn] = 1
+                  else:
+                      IsSimplex[pn] = 0
+
+                  
+                  
+                  print(f"new simplex: {pn} -> {MEB.radius} with filtration value {filtration_value}")
 
 # Test cases
 def test_task1():
@@ -365,23 +411,29 @@ def test_task4():
     print(f"Complex ? {a}")
     print(f"filtration value: {task4_filtration_value(R)}")
 
+def test_task5():
+ #generate random n points in R^d:
+ n=random.randint(5,20)
+ print(f"n={n}")
+ d=random.randint(2,5)
+ print(f"d={d}")
+ points=[tuple(np.random.rand(d)) for i in range(n)]
+ print(f"Points: {points}")
+ k=random.randint(2,d)
+ print(f"k={k}")
+ l=random.randint(1,10)
+ print(f"l={l}")
+ task5(points,k,l)
 
-
-
-
-print("---------Question 1------------")
-test_task1()
-print("---------Question 2------------")
-test_task2()
-print("---------Question 3------------")
-test_task3()
+#print("---------Question 1------------")
+#test_task1()
+#print("---------Question 2------------")
+#test_task2()
+#print("---------Question 3------------")
+#test_task3()
 #print("fonction mathias:")
 #test_task3_mathias()
-print("---------Question 4------------")
-test_task4()
-
-
-        
-
-    
-
+#print("---------Question 4------------")
+#test_task4()
+print("---------Question 5------------")
+test_task5()    
