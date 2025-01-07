@@ -199,7 +199,8 @@ def Is_in_alpha_complex(P,R):
         return True
 
     MEB=make_sphere_n_points(R)
-    
+
+    #vérifier si il ne faut pas changer la fonction contains
     for p in P:
        if MEB.contains(p):
            return False
